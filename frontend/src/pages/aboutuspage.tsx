@@ -7,7 +7,7 @@ const AboutUsPage: React.FC = () => {
 			<h1 className="text-4xl mb-6">About Us</h1>
 			<p className="text-xl text-gray-600 mb-4">Wie zijn wij?</p>
 			<p className="text-lg text-gray-500">
-                Wij zijn de ontwikkelaars van deze website, toegewijd aan het bieden van de beste ervaring voor onze gebruikers. 
+                Ik ben CamieL Schnackers, een 23 jaar oude student aan de Hogeschool van Heerlen, waar ik de opleiding Software Development volg. Mijn passie ligt in het ontwikkelen van innovatieve softwareoplossingen die echte problemen aanpakken. Met een sterke achtergrond in programmeren en een creatieve benadering van probleemoplossing, streef ik ernaar om technologie te gebruiken om het leven van mensen te verbeteren.
 			</p>
 		</div>
 	);
