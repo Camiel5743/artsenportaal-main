@@ -30,7 +30,16 @@ const PatientNoteListItem: React.FC<{
 	note: PatientNote; 
 	searchTerm: string; 
 	isMatch: boolean;
-}> = ({ note, searchTerm, isMatch }) => {
+	//onview, onEdit, onDelete places holder for functions
+	//Camiel Schnackers
+	//13-10-2025
+
+	onView: (note: PatientNote) => void;
+	onEdit: (note: PatientNote) => void;
+	onDelete: (id: string) => void;
+
+
+}> = ({ note, searchTerm, isMatch, onView, onEdit, onDelete }) => {
 	const formatDate = (date: Date): string => {
 		return date.toLocaleDateString('nl-NL', {
 			day: '2-digit',
@@ -46,52 +55,80 @@ const PatientNoteListItem: React.FC<{
 		? "border-2 border-blue-400 shadow-lg bg-blue-50 ring-2 ring-blue-200" 
 		: "border-gray-200 hover:bg-gray-50";
 
-	return (
-		<div className={`${baseClasses} ${matchClasses}`}>
-			{/* Match indicator */}
-			{isMatch && (
-				<div className="flex items-center gap-2 mb-2 text-blue-600 text-sm font-medium">
-					<svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-						<path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
-					</svg>
-					<span>Zoekresultaat</span>
-				</div>
-			)}
 
-			<div className="flex justify-between items-start mb-2">
-				<h3 className={`font-medium ${isMatch ? 'text-blue-700' : 'text-blue-600'}`}>
-					{highlightText(note.title, searchTerm)}
-				</h3>
-				<span className="text-xs text-gray-500">{formatDate(note.createdAt)}</span>
-			</div>
-			<div className="grid grid-cols-4 gap-4 text-sm">
-				<div>
-					<span className="font-medium text-gray-600">Notitie:</span>
-					<div className={`font-medium ${isMatch ? 'text-blue-700' : 'text-blue-600'}`}>
+		return (
+			<div className={`${baseClasses} ${matchClasses}`}>
+				{/* Match indicator */}
+				{isMatch && (
+					<div className="flex items-center gap-2 mb-2 text-blue-600 text-sm font-medium">
+						<svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+							<path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+						</svg>
+						<span>Zoekresultaat</span>
+					</div>
+				)}
+
+				{/* Titel en datum */}
+				<div className="flex justify-between items-start mb-2">
+					<h3 className={`font-medium ${isMatch ? 'text-blue-700' : 'text-blue-600'}`}>
 						{highlightText(note.title, searchTerm)}
+					</h3>
+					<span className="text-xs text-gray-500">{formatDate(note.createdAt)}</span>
+				</div>
+
+				{/* Inhoud van de notitie */}
+				<div className="grid grid-cols-4 gap-4 text-sm">
+					<div>
+						<span className="font-medium text-gray-600">Notitie:</span>
+						<div className={`font-medium ${isMatch ? 'text-blue-700' : 'text-blue-600'}`}>
+							{highlightText(note.title, searchTerm)}
+						</div>
+					</div>
+					<div>
+						<span className="font-medium text-gray-600">Specialist:</span>
+						<div>{highlightText(note.specialistName, searchTerm)}</div>
+					</div>
+					<div>
+						<span className="font-medium text-gray-600">Patiënt:</span>
+						<div>{highlightText(note.patientName, searchTerm)}</div>
+					</div>
+					<div>
+						<span className="font-medium text-gray-600">Inhoud:</span>
+						<div className="text-gray-700 line-clamp-2" title={note.content}>
+							{highlightText(
+								note.content.length > 50
+									? `${note.content.substring(0, 50)}...`
+									: note.content,
+								searchTerm
+							)}
+						</div>
 					</div>
 				</div>
-				<div>
-					<span className="font-medium text-gray-600">Specialist:</span>
-					<div>{highlightText(note.specialistName, searchTerm)}</div>
-				</div>
-				<div>
-					<span className="font-medium text-gray-600">Patiënt:</span>
-					<div>{highlightText(note.patientName, searchTerm)}</div>
-				</div>
-				<div>
-					<span className="font-medium text-gray-600">Inhoud:</span>
-					<div className="text-gray-700 line-clamp-2" title={note.content}>
-						{highlightText(
-							note.content.length > 50 ? `${note.content.substring(0, 50)}...` : note.content,
-							searchTerm
-						)}
-					</div>
+
+				{/* === Actieknoppen onderaan Camiel Schnackers=== */}
+				<div className="mt-4 flex gap-2 justify-end">
+					<button
+						onClick={() => onView(note)}
+						className="px-3 py-1.5 text-sm rounded border border-gray-300 hover:bg-gray-100"
+					>
+						Bekijken
+					</button>
+					<button
+						onClick={() => onEdit(note)}
+						className="px-3 py-1.5 text-sm rounded border border-blue-500 text-blue-700 hover:bg-blue-50"
+					>
+						Bewerken
+					</button>
+					<button
+						onClick={() => onDelete(note.id)}
+						className="px-3 py-1.5 text-sm rounded border border-red-500 text-red-700 hover:bg-red-50"
+					>
+						Verwijderen
+					</button>
 				</div>
 			</div>
-		</div>
-	);
-};
+		);
+	};
 
 const Notes: React.FC = () => {
 	const [patientNotes, setPatientNotes] = useState<PatientNote[]>([]);
@@ -113,6 +150,7 @@ const Notes: React.FC = () => {
 		const interval = setInterval(loadPatientNotes, 5000);
 		return () => clearInterval(interval);
 	}, []);
+
 
 	// Check if a note matches the search term
 	const isNoteMatch = (note: PatientNote, term: string): boolean => {
@@ -213,6 +251,38 @@ const Notes: React.FC = () => {
 		return sortDirection === 'asc' ? "Images/dropdown_arrow.png" : "Images/dropdown_arrow_reverse.png";
 	};
 
+	// === Actieknoppen functies ===
+	const handleView = (note: PatientNote) => {
+		alert(
+			`Notitie bekijken:\n\nTitel: ${note.title}\nDatum: ${new Date(note.createdAt).toLocaleString('nl-NL')}\n` +
+			`Specialist: ${note.specialistName}\nPatiënt: ${note.patientName}\n\nInhoud:\n${note.content}`
+		);
+	};
+
+	const handleEdit = (note: PatientNote) => {
+		const newTitle = window.prompt("Nieuwe titel:", note.title);
+		if (!newTitle || !newTitle.trim()) return;
+
+		if ((notesService as any).updateNote) {
+			(notesService as any).updateNote({ ...note, title: newTitle.trim() });
+		}
+
+		setPatientNotes(prev =>
+			prev.map(n => n.id === note.id ? { ...n, title: newTitle.trim() } : n)
+		);
+	};
+
+	const handleDelete = (id: string) => {
+		if (!window.confirm("Weet je zeker dat je deze notitie wilt verwijderen?")) return;
+
+		if ((notesService as any).deleteNote) {
+			(notesService as any).deleteNote(id);
+		}
+
+		setPatientNotes(prev => prev.filter(n => n.id !== id));
+	};
+
+
 	return (
 		<div className="h-screen overflow-hidden bg-gray-50 flex flex-col">
 			{/* Header */}
@@ -294,6 +364,9 @@ const Notes: React.FC = () => {
 										note={note} 
 										searchTerm={searchTerm}
 										isMatch={isNoteMatch(note, searchTerm)}
+                                        onView={handleView}     // edit these props
+                                        onEdit={handleEdit}     // Camiel Schnackers
+                                        onDelete={handleDelete}  // 13-10-2025
 									/>
 								))
 							) : patientNotes.length > 0 ? (
