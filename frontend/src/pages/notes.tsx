@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { notesService, PatientNote } from "../services/notesService";
+import { Eye, Pencil, Trash2 } from "lucide-react";
+
 
 // Utility function to highlight matching text
 const highlightText = (text: string, searchTerm: string): JSX.Element => {
@@ -105,25 +107,28 @@ const PatientNoteListItem: React.FC<{
 					</div>
 				</div>
 
-				{/* === Actieknoppen onderaan Camiel Schnackers=== */}
+				{/* === Actieknoppen onderaan Camiel Schnackers === */}
 				<div className="mt-4 flex gap-2 justify-end">
 					<button
 						onClick={() => onView(note)}
-						className="px-3 py-1.5 text-sm rounded border border-gray-300 hover:bg-gray-100"
+						className="p-2 text-sm rounded border border-gray-300 hover:bg-gray-100 flex items-center justify-center"
+						title="Bekijken"
 					>
-						Bekijken
+						<Eye className="w-4 h-4" />
 					</button>
 					<button
 						onClick={() => onEdit(note)}
-						className="px-3 py-1.5 text-sm rounded border border-blue-500 text-blue-700 hover:bg-blue-50"
+						className="p-2 text-sm rounded border border-blue-500 text-blue-700 hover:bg-blue-50 flex items-center justify-center"
+						title="Bewerken"
 					>
-						Bewerken
+						<Pencil className="w-4 h-4" />
 					</button>
 					<button
 						onClick={() => onDelete(note.id)}
-						className="px-3 py-1.5 text-sm rounded border border-red-500 text-red-700 hover:bg-red-50"
+						className="p-2 text-sm rounded border border-red-500 text-red-700 hover:bg-red-50 flex items-center justify-center"
+						title="Verwijderen"
 					>
-						Verwijderen
+						<Trash2 className="w-4 h-4" />
 					</button>
 				</div>
 			</div>
