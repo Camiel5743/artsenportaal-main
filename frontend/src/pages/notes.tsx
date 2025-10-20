@@ -26,6 +26,11 @@ const highlightText = (text: string, searchTerm: string): JSX.Element => {
 };
 
 // Patient Note List Item Component
+// In de bovenstaande code wordt een component aangemaakt genaamd PatientNoteListItem.
+// Dit component werkt samen met de React bibliotheek om de pagina automatisch te updaten wanneer er iets verandert.
+// Het component toont per notitie de titel, tekst en extra gegevens.
+// Er zijn drie knoppen toegevoegd: onView, onEdit en onDelete.
+// Deze knoppen voeren acties uit, maar sturen geen gegevens terug omdat de functies als void zijn gedefinieerd.
 const PatientNoteListItem: React.FC<{ 
 	note: PatientNote; 
 	searchTerm: string; 
@@ -37,8 +42,10 @@ const PatientNoteListItem: React.FC<{
 	onView: (note: PatientNote) => void;
 	onEdit: (note: PatientNote) => void;
 	onDelete: (id: string) => void;
+	//
+    onCreate?: () => void;
 
-
+	// paramters 
 }> = ({ note, searchTerm, isMatch, onView, onEdit, onDelete }) => {
 	const formatDate = (date: Date): string => {
 		return date.toLocaleDateString('nl-NL', {
@@ -67,6 +74,13 @@ const PatientNoteListItem: React.FC<{
 						<span>Zoekresultaat</span>
 					</div>
 				)}
+
+
+				{/* Create Button* new notitie/}
+
+
+
+
 
 				{/* Titel en datum */}
 				<div className="flex justify-between items-start mb-2">
@@ -357,8 +371,10 @@ const Notes: React.FC = () => {
 							</div>
 						</div>
 					</div>
+					
+					{/*onderstaande lijst word opnieuw gegenereerd wanneer  er iets is veranderd/aangepast/verwijderd*/}
 
-					{/* List of notes */}
+					
 					<div className="flex-1 overflow-y-auto p-4">
 						<div className="space-y-3">
 							{filteredNotes.length > 0 ? (
