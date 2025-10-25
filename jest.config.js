@@ -1,4 +1,4 @@
 module.exports = {
-    testMatch: ["**/Tests/**/*.test.js"],
+    testMatch: ["**/tests/**/*.test.js"],
     testPathIgnorePatterns: ["/node_modules/", "/backend/", "/frontend/", "/PantientData/"]
 };
