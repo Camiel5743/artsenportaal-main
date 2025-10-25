@@ -29,7 +29,7 @@ const CalenderPage: React.FC = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const navigate = useNavigate();
 
-  const days = ["Ma", "Di", "Wo", "Do", "Vr","Za","Zo"];   // za,zo toegevoegd  Camiel Schnackers
+  const days = ["Ma", "Di", "Wo", "Do", "Vr"];   // za,zo toegevoegd  Camiel Schnackers
   const times = Array.from({ length: 13 }, (_, i) => `${String(i + 8).padStart(2, "0")}:00`);
 
   const handlePrevWeek = () => {
@@ -62,7 +62,7 @@ const CalenderPage: React.FC = () => {
 
   const getDates = (startOfWeek: Date): Date[] => {
     const dates = [];
-      for (let i = 0; i < 7; i++) {  // veranderd naar 7 dagen  Camiel Schnackers
+      for (let i = 0; i < 5; i++) {  // veranderd naar 7 dagen  Camiel Schnackers
       const date = new Date(startOfWeek);
       date.setDate(startOfWeek.getDate() + i);
       dates.push(date);
