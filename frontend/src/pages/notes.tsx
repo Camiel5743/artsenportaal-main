@@ -261,13 +261,13 @@ const Notes: React.FC = () => {
                         ))}
                     </div>
 
-                    {/* + notitie knop */}
+                    {/* +notitie knop toevoegen — rechtsonder, vierkant en beter uitgelijnd */}
                     <button
                         onClick={() => openModal("create")}
-                        className="fixed bottom-1/2 right-1/2 translate-x-1/2 translate-y-1/2 bg-blue-600 text-white px-6 py-4 rounded-lg shadow-lg hover:bg-blue-700 transition-all flex items-center justify-center gap-2"
+                        className="fixed bottom-10 right-10 bg-blue-600 text-white px-6 py-4 rounded-lg shadow-lg hover:bg-blue-700 transition-all flex items-center justify-center gap-2"
                     >
                         <i className="bi bi-plus-lg text-lg"></i>
-                        <span className="font-medium">Notitie toevoegen</span>
+                        <span className="font-semibold">Notitie toevoegen</span>
                     </button>
                 </div>
             </div>
