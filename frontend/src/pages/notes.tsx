@@ -318,7 +318,7 @@ const Notes: React.FC = () => {
 						<div className="relative">
 							<input 
 								type="text" 
-								placeholder="Zoek notitie..." 
+								placeholder="Zoek op datum,patient,specialist of inhoud." 
 								value={searchTerm}
 								onChange={(e) => setSearchTerm(e.target.value)}
 								className="w-full p-3 border border-gray-300 rounded-lg pr-24 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
