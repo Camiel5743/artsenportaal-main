@@ -1,6 +1,6 @@
 import "bootstrap-icons/font/bootstrap-icons.css";
 import React, { useState, useEffect } from "react";
-import { PatientNote } from "../services/notesService";
+import { PatientNote } from "../services/notesService";    // Importeer het type PatientNote om de +notitie knop te gebruiken
 
 // Utility function to highlight matching text
 const highlightText = (text: string, searchTerm: string): JSX.Element => {
@@ -37,7 +37,7 @@ const PatientNoteListItem: React.FC<{
     isMatch: boolean;
     onView: (note: PatientNote) => void;
     onEdit: (note: PatientNote) => void;
-    onDelete: (id: string) => void;
+    onDelete: (note: PatientNote) => void; // Nieuw: geef het hele object mee
 }> = ({ note, searchTerm, isMatch, onView, onEdit, onDelete }) => {
     const formatDateOnly = (date: Date): string =>
         new Date(date).toLocaleDateString("nl-NL", {
@@ -62,7 +62,6 @@ const PatientNoteListItem: React.FC<{
 
     return (
         <div className={`${baseClasses} ${matchClasses}`}>
-            {/* 5 kolommen: exact als de header erboven */}
             <div className="grid grid-cols-5 gap-4 items-start">
                 {/* Datum */}
                 <div className="text-sm text-gray-800">
@@ -84,7 +83,7 @@ const PatientNoteListItem: React.FC<{
                     {highlightText(note.specialistName, searchTerm)}
                 </div>
 
-                {/* Inhoud (titel + snippet) */}
+                {/* Inhoud */}
                 <div className="text-sm">
                     <span className="font-medium text-gray-800">
                         {highlightText(note.title, searchTerm)}
@@ -96,7 +95,6 @@ const PatientNoteListItem: React.FC<{
 
                 {/* Actieknoppen */}
                 <div className="col-span-5 mt-4 flex gap-3 justify-end">
-                    {/* Oog (bekijken) */}
                     <button
                         onClick={() => onView(note)}
                         className="p-2 rounded-lg border border-primary text-primary hover:bg-blue-50 transition-colors"
@@ -104,8 +102,6 @@ const PatientNoteListItem: React.FC<{
                     >
                         <i className="bi bi-eye-fill fs-5"></i>
                     </button>
-
-                    {/* Potlood (bewerken) */}
                     <button
                         onClick={() => onEdit(note)}
                         className="p-2 rounded-lg border border-success text-success hover:bg-green-50 transition-colors"
@@ -113,41 +109,43 @@ const PatientNoteListItem: React.FC<{
                     >
                         <i className="bi bi-pencil-fill fs-5"></i>
                     </button>
-
-                    {/* Prullenbak (verwijderen) */}
                     <button
-                        onClick={() => onDelete(note.id)}
+                        onClick={() => onDelete(note)}
                         className="p-2 rounded-lg border border-danger text-danger hover:bg-red-50 transition-colors"
                         title="Verwijderen"
                     >
                         <i className="bi bi-trash-fill fs-5"></i>
                     </button>
                 </div>
-
-
             </div>
         </div>
     );
-    };
+};
 
-
-// Hardcoded dummy data
+// Dummy data
 const DUMMY_NOTES: PatientNote[] = [
     {
         id: "dummy-1",
         patientId: "p1",
         patientName: "Emma Thompson",
         title: "camiel",
-        content: "test",
+        content: "test inhoud van notitie",
         createdAt: new Date("2025-10-27T12:14:00"),
         specialistName: "Dr. Johannes Doe",
     },
 ];
 
+type ModalMode = "create" | "edit" | "view" | "delete"; // Nieuw: delete toegevoegd
+
 const Notes: React.FC = () => {
     const [patientNotes, setPatientNotes] = useState<PatientNote[]>([]);
     const [filteredNotes, setFilteredNotes] = useState<PatientNote[]>([]);
     const [searchTerm, setSearchTerm] = useState<string>("");
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalMode, setModalMode] = useState<ModalMode>("create");
+    const [selectedNote, setSelectedNote] = useState<PatientNote | null>(null);
+    const [form, setForm] = useState({ patient: "", title: "", content: "" });
 
     useEffect(() => {
         setPatientNotes(DUMMY_NOTES);
@@ -155,49 +153,64 @@ const Notes: React.FC = () => {
 
     const isNoteMatch = (note: PatientNote, term: string): boolean => {
         if (!term.trim()) return false;
-        const searchLower = term.toLowerCase();
+        const lower = term.toLowerCase();
         return (
-            note.title.toLowerCase().includes(searchLower) ||
-            note.content.toLowerCase().includes(searchLower) ||
-            note.patientName.toLowerCase().includes(searchLower) ||
-            note.specialistName.toLowerCase().includes(searchLower)
+            note.title.toLowerCase().includes(lower) ||
+            note.content.toLowerCase().includes(lower) ||
+            note.patientName.toLowerCase().includes(lower) ||
+            note.specialistName.toLowerCase().includes(lower)
         );
     };
 
     useEffect(() => {
-        let filtered = [...patientNotes];
-        if (searchTerm.trim()) {
-            const term = searchTerm.toLowerCase();
-            filtered = filtered.filter((note) =>
-                [note.title, note.content, note.patientName, note.specialistName]
-                    .map((x) => x.toLowerCase())
-                    .some((x) => x.includes(term))
-            );
-        }
-        setFilteredNotes(filtered);
+        setFilteredNotes(
+            searchTerm.trim()
+                ? patientNotes.filter((n) => isNoteMatch(n, searchTerm))
+                : patientNotes
+        );
     }, [patientNotes, searchTerm]);
 
-    const handleView = (note: PatientNote) => {
-        alert(
-            `Notitie bekijken:\n\nTitel: ${note.title}\nDatum: ${note.createdAt.toLocaleString(
-                "nl-NL"
-            )}\nSpecialist: ${note.specialistName}\nPatiënt: ${note.patientName
-            }\n\nInhoud:\n${note.content}`
-        );
+    // Nieuw: modale helpers
+    const openModal = (mode: ModalMode, note?: PatientNote) => {
+        setModalMode(mode);
+        setSelectedNote(note || null);
+        if (mode === "edit" && note) {
+            setForm({
+                patient: note.patientName,
+                title: note.title,
+                content: note.content,
+            });
+        } else if (mode === "create") {
+            setForm({ patient: "", title: "", content: "" });
+        }
+        setIsModalOpen(true);
     };
 
-    const handleEdit = (note: PatientNote) => {
-        const newTitle = window.prompt("Nieuwe titel:", note.title);
-        if (!newTitle || !newTitle.trim()) return;
-        setPatientNotes((prev) =>
-            prev.map((n) => (n.id === note.id ? { ...n, title: newTitle.trim() } : n))
-        );
+    const closeModal = () => {
+        setIsModalOpen(false);
+        setSelectedNote(null);
+        setForm({ patient: "", title: "", content: "" });
     };
 
-    const handleDelete = (id: string) => {
-        if (!window.confirm("Weet je zeker dat je deze notitie wilt verwijderen?"))
-            return;
-        setPatientNotes((prev) => prev.filter((n) => n.id !== id));
+    // Nieuw: knoppen logica
+    const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
+        e.preventDefault();
+        if (modalMode === "create") {
+            alert("Bedankt voor het aanmaken van een notitie");
+        } else if (modalMode === "edit" && selectedNote) {
+            setPatientNotes((prev) =>
+                prev.map((n) =>
+                    n.id === selectedNote.id
+                        ? { ...n, patientName: form.patient, title: form.title, content: form.content }
+                        : n
+                )
+            );
+            alert("Notitie aangepast");
+        } else if (modalMode === "delete" && selectedNote) {
+            setPatientNotes((prev) => prev.filter((n) => n.id !== selectedNote.id));
+            alert("Notitie verwijderd");
+        }
+        closeModal();
     };
 
     return (
@@ -211,77 +224,46 @@ const Notes: React.FC = () => {
             {/* Main */}
             <div className="flex-1 overflow-hidden p-6">
                 <div className="bg-white h-full rounded-xl shadow-sm border border-gray-200 flex flex-col">
-                    {/* Search */}
+                    {/* Zoekbalk */}
                     <div className="p-4 border-b border-gray-200">
-                        <div className="relative">
-                            <input
-                                type="text"
-                                placeholder="Zoek op datum, patiënt, specialist of inhoud."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full p-3 border border-gray-300 rounded-lg pr-24 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            />
-                            {searchTerm && (
-                                <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
-                                    <span className="text-sm text-blue-600 bg-blue-100 px-2 py-1 rounded-full">
-                                        {filteredNotes.length} resultaat
-                                        {filteredNotes.length !== 1 ? "en" : ""}
-                                    </span>
-                                    <button
-                                        onClick={() => setSearchTerm("")}
-                                        className="text-gray-400 hover:text-gray-600 p-1"
-                                        title="Zoekterm wissen"
-                                    >
-                                        <svg
-                                            className="w-5 h-5"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            viewBox="0 0 24 24"
-                                        >
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                strokeWidth={2}
-                                                d="M6 18L18 6M6 6l12 12"
-                                            />
-                                        </svg>
-                                    </button>
-                                </div>
-                            )}
-                        </div>
+                        <input
+                            type="text"
+                            placeholder="Zoek op datum, patiënt, specialist of inhoud."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
                     </div>
 
                     {/* Tabelkoppen */}
                     <div className="px-4 py-1.5 bg-gray-50 border-b border-gray-200">
-                        <div className="grid grid-cols-5 gap-1 items-center">
-                            <h2 className="text-sm font-semibold text-gray-500 text-left">Datum</h2>
-                            <h2 className="text-sm font-semibold text-gray-500 text-left">Tijd</h2>
-                            <h2 className="text-sm font-semibold text-gray-500 text-left">Patiënt</h2>
-                            <h2 className="text-sm font-semibold text-gray-500 text-left">Specialist</h2>
-                            <h2 className="text-sm font-semibold text-gray-500 text-left">Inhoud</h2>
+                        <div className="grid grid-cols-5 gap-1 items-center text-gray-500 font-semibold text-sm">
+                            <span>Datum</span>
+                            <span>Tijd</span>
+                            <span>Patiënt</span>
+                            <span>Specialist</span>
+                            <span>Inhoud</span>
                         </div>
                     </div>
 
-                    {/* Notities */}
+                    {/* Lijst */}
                     <div className="flex-1 overflow-y-auto p-4">
-                        <div className="space-y-3">
-                            {filteredNotes.map((note) => (
-                                <PatientNoteListItem
-                                    key={note.id}
-                                    note={note}
-                                    searchTerm={searchTerm}
-                                    isMatch={isNoteMatch(note, searchTerm)}
-                                    onView={handleView}
-                                    onEdit={handleEdit}
-                                    onDelete={handleDelete}
-                                />
-                            ))}
-                        </div>
+                        {filteredNotes.map((note) => (
+                            <PatientNoteListItem
+                                key={note.id}
+                                note={note}
+                                searchTerm={searchTerm}
+                                isMatch={isNoteMatch(note, searchTerm)}
+                                onView={() => openModal("view", note)}
+                                onEdit={() => openModal("edit", note)}
+                                onDelete={() => openModal("delete", note)} // Nieuw: custom delete popup
+                            />
+                        ))}
                     </div>
 
-                    {/* +notitie knop toevoegen */}
+                    {/* + knop */}
                     <button
-                        onClick={() => alert("Nieuwe notitie toevoegen")}
+                        onClick={() => openModal("create")}
                         className="fixed bottom-6 right-6 bg-blue-600 text-white px-5 py-3 rounded-full shadow-lg hover:bg-blue-700 transition-all flex items-center gap-2"
                     >
                         <i className="bi bi-plus-lg text-lg"></i>
@@ -289,6 +271,123 @@ const Notes: React.FC = () => {
                     </button>
                 </div>
             </div>
+
+            {/* Nieuw: gedeelde modal */}
+            {isModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center">
+                    <div className="absolute inset-0 bg-black/40" onClick={closeModal} />
+                    <div className="relative w-full max-w-xl bg-white rounded-xl shadow-xl p-6">
+                        <div className="flex items-start justify-between">
+                            <h3 className="text-2xl font-bold text-gray-900">
+                                {modalMode === "create"
+                                    ? "Nieuwe notitie"
+                                    : modalMode === "edit"
+                                        ? "Notitie aanpassen"
+                                        : modalMode === "view"
+                                            ? "Notitie bekijken"
+                                            : "Notitie verwijderen"}
+                            </h3>
+                            <button
+                                onClick={closeModal}
+                                className="text-gray-400 hover:text-gray-600 p-1 rounded"
+                            >
+                                <i className="bi bi-x-lg text-xl"></i>
+                            </button>
+                        </div>
+
+                        {/* Nieuw: inhoud per modus */}
+                        {modalMode === "view" && selectedNote && (
+                            <div className="mt-5 space-y-3 text-gray-800">
+                                <p><strong>Datum:</strong> {selectedNote.createdAt.toLocaleDateString("nl-NL")}</p>
+                                <p><strong>Tijd:</strong> {selectedNote.createdAt.toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" })}</p>
+                                <p><strong>Specialist:</strong> {selectedNote.specialistName}</p>
+                                <p><strong>Inhoud:</strong> {selectedNote.content}</p>
+                            </div>
+                        )}
+
+                        {(modalMode === "create" || modalMode === "edit") && (
+                            <form className="mt-5 space-y-5" onSubmit={handleSubmit}>
+                                <div className="space-y-2">
+                                    <label className="block text-sm font-medium text-gray-700">
+                                        Notitie voor
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={form.patient}
+                                        placeholder="Bijv. Emma Thompson"
+                                        onChange={(e) => setForm((f) => ({ ...f, patient: e.target.value }))}
+                                        className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="block text-sm font-medium text-gray-700">
+                                        Titel <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={form.title}
+                                        onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
+                                        placeholder="Bijv. Controle afspraak"
+                                        className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="block text-sm font-medium text-gray-700">
+                                        Inhoud <span className="text-red-500">*</span>
+                                    </label>
+                                    <textarea
+                                        rows={5}
+                                        value={form.content}
+                                        onChange={(e) => setForm((f) => ({ ...f, content: e.target.value }))}
+                                        placeholder="Schrijf hier de notitie..."
+                                        className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    />
+                                </div>
+
+                                {/* Nieuw: groene bevestigen + rode annuleren */}
+                                <div className="mt-6 flex justify-end gap-3">
+                                    <button
+                                        type="submit"
+                                        className="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700"
+                                    >
+                                        Bevestigen
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={closeModal}
+                                        className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700"
+                                    >
+                                        Annuleren
+                                    </button>
+                                </div>
+                            </form>
+                        )}
+
+                        {modalMode === "delete" && selectedNote && (
+                            <form className="mt-6 space-y-6 text-center" onSubmit={handleSubmit}>
+                                <p className="text-gray-800 text-lg font-medium">
+                                    Weet je zeker dat je deze notitie wilt verwijderen?
+                                </p>
+                                <div className="flex justify-center gap-3 mt-4">
+                                    <button
+                                        type="submit"
+                                        className="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700"
+                                    >
+                                        Bevestigen
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={closeModal}
+                                        className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700"
+                                    >
+                                        Annuleren
+                                    </button>
+                                </div>
+                            </form>
+                        )}
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
