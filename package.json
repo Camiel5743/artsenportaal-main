@@ -2,6 +2,7 @@
   "dependencies": {
     "@types/d3": "^7.4.3",
     "axios": "^1.9.0",
+    "bootstrap-icons": "^1.13.1",
     "lucide-react": "^0.546.0"
   },
   "devDependencies": {

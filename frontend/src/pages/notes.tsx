@@ -1,3 +1,4 @@
+import "bootstrap-icons/font/bootstrap-icons.css";
 import React, { useState, useEffect } from "react";
 import { PatientNote } from "../services/notesService";
 
@@ -85,39 +86,50 @@ const PatientNoteListItem: React.FC<{
 
                 {/* Inhoud (titel + snippet) */}
                 <div className="text-sm">
-                    <a href="#" className="text-blue-600 font-medium">
+                    <span className="font-medium text-gray-800">
                         {highlightText(note.title, searchTerm)}
-                    </a>
+                    </span>
                     <div className="text-gray-700" title={note.content}>
                         {highlightText(snippet, searchTerm)}
                     </div>
                 </div>
 
-                {/* Actieknoppen over de volledige breedte */}
-                <div className="col-span-5 mt-4 flex gap-2 justify-end">
+                {/* Actieknoppen */}
+                <div className="col-span-5 mt-4 flex gap-3 justify-end">
+                    {/* Oog (bekijken) */}
                     <button
                         onClick={() => onView(note)}
-                        className="px-3 py-1.5 text-sm rounded border border-gray-300 hover:bg-gray-100"
+                        className="p-2 rounded-lg border border-primary text-primary hover:bg-blue-50 transition-colors"
+                        title="Bekijken"
                     >
-                        Bekijken
+                        <i className="bi bi-eye-fill fs-5"></i>
                     </button>
+
+                    {/* Potlood (bewerken) */}
                     <button
                         onClick={() => onEdit(note)}
-                        className="px-3 py-1.5 text-sm rounded border border-blue-500 text-blue-700 hover:bg-blue-50"
+                        className="p-2 rounded-lg border border-success text-success hover:bg-green-50 transition-colors"
+                        title="Bewerken"
                     >
-                        Bewerken
+                        <i className="bi bi-pencil-fill fs-5"></i>
                     </button>
+
+                    {/* Prullenbak (verwijderen) */}
                     <button
                         onClick={() => onDelete(note.id)}
-                        className="px-3 py-1.5 text-sm rounded border border-red-500 text-red-700 hover:bg-red-50"
+                        className="p-2 rounded-lg border border-danger text-danger hover:bg-red-50 transition-colors"
+                        title="Verwijderen"
                     >
-                        Verwijderen
+                        <i className="bi bi-trash-fill fs-5"></i>
                     </button>
                 </div>
+
+
             </div>
         </div>
     );
-};
+    };
+
 
 // Hardcoded dummy data
 const DUMMY_NOTES: PatientNote[] = [
@@ -266,6 +278,15 @@ const Notes: React.FC = () => {
                             ))}
                         </div>
                     </div>
+
+                    {/* +notitie knop toevoegen */}
+                    <button
+                        onClick={() => alert("Nieuwe notitie toevoegen")}
+                        className="fixed bottom-6 right-6 bg-blue-600 text-white px-5 py-3 rounded-full shadow-lg hover:bg-blue-700 transition-all flex items-center gap-2"
+                    >
+                        <i className="bi bi-plus-lg text-lg"></i>
+                        <span className="font-medium">Notitie toevoegen</span>
+                    </button>
                 </div>
             </div>
         </div>
