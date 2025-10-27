@@ -261,10 +261,10 @@ const Notes: React.FC = () => {
                         ))}
                     </div>
 
-                    {/* + knop */}
+                    {/* + notitie knop */}
                     <button
                         onClick={() => openModal("create")}
-                        className="fixed bottom-6 right-6 bg-blue-600 text-white px-5 py-3 rounded-full shadow-lg hover:bg-blue-700 transition-all flex items-center gap-2"
+                        className="fixed bottom-1/2 right-1/2 translate-x-1/2 translate-y-1/2 bg-blue-600 text-white px-6 py-4 rounded-lg shadow-lg hover:bg-blue-700 transition-all flex items-center justify-center gap-2"
                     >
                         <i className="bi bi-plus-lg text-lg"></i>
                         <span className="font-medium">Notitie toevoegen</span>
