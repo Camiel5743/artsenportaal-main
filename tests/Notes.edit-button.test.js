@@ -2,7 +2,8 @@
 // Unit test for Addnote
 // Camiel Schnackers
 // 26/10/2025
-// Deze versie zou ALLE tests moeten laten slagen
+
+
 describe("Notes edit button Validation", () => {
 
     test("should not allow title containing only punctuation marks", () => {
